@@ -1,0 +1,19 @@
+{
+  "name": "Java MySQL Dev Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "pivotal.vscode-spring-boot"
+      ],
+      "settings": {
+        "java.jdt.ls.java.home": "/usr/lib/jvm/jdk-21.0.7-oracle-x64"
+      }
+    }
+  },
+  "forwardPorts": [8080, 3306],
+  "postCreateCommand": "java -version && mvn -v"
+}
