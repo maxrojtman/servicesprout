@@ -31,3 +31,21 @@ build/
 
 ### VS Code ###
 .vscode/
+src/main/resources/application.properties
+
+# Maven/Gradle build output
+target/
+build/
+
+# IDE files
+.idea/
+*.iml
+*.classpath
+*.project
+*.settings/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log

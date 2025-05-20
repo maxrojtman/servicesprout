@@ -53,6 +53,7 @@ public class Utils {
 
         WorkOrderDTO dto = new WorkOrderDTO();
         dto.setId(workOrder.getId());
+        dto.setPhotoUrl(workOrder.getPhotoUrl());
         dto.setTitle(workOrder.getTitle());
         dto.setDescription(workOrder.getDescription());
         dto.setStatus(workOrder.getStatus());
@@ -90,7 +91,11 @@ public class Utils {
     public static List<UserDTO> mapUserListEntityToUserListDTO(List<User> userList) {
         return userList.stream().map(Utils::mapUserEntityToDTO).collect(Collectors.toList());
     }
-
-
+    public static List<WorkOrderDTO> mapWOListEntityToWODTO(List<WorkOrder> woList) {
+        return woList.stream().map(Utils::mapWorkOrderEntityToDTO).collect(Collectors.toList());
+    }
+    public static List<WorkPerformedDTO> mapWPEntityToWPDTO(List<WorkPerformed> wpList) {
+        return wpList.stream().map(Utils::mapWorkPerformedEntityToDTO).collect(Collectors.toList());
+    }
 
 }

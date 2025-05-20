@@ -1,7 +1,6 @@
 package com.Maxwell.ServiceSprout.utils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -9,17 +8,19 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
+@Service
 public class JWTUtils {
     private static final long EXPIRATION_TIME = 1000 * 60 *24 * 7; // 7 days
     private final SecretKey Key; 
 
     public JWTUtils() {
        String secretString ="MySuperSecretKey1234567890ABCDEF!@#";
-       byte[] keyBytes = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
+       byte[] keyBytes = secretString.getBytes(StandardCharsets.UTF_8);
         this.Key = new SecretKeySpec(keyBytes, "HmacSHA256");
     }
     public String generateToken(UserDetails userDetails) {

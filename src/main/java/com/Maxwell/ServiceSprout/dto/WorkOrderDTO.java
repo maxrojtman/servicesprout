@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkOrderDTO {
     private Long id;
+    private String photoUrl;
     private String title;
     private String description;
     private String status;

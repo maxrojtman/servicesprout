@@ -21,6 +21,7 @@ public class WorkOrder {
     private String description;
     private String status;
     private String priority;
+    private String photoUrl;
 
     private LocalDateTime createdAt;
     private LocalDateTime dueDate;

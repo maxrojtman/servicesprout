@@ -1,9 +1,6 @@
 package com.Maxwell.ServiceSprout.dto;
 
 import java.util.List;
-import java.util.Set;
-
-import com.Maxwell.ServiceSprout.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -16,7 +13,9 @@ public class Response{
     private String expirationTime;
     private UserDTO user;
     private String role;
-    private Set<WorkOrderDTO> workOrderList;
+    private WorkOrderDTO workOrder;
+    private WorkPerformedDTO workPerformed;
+    private List<WorkOrderDTO> workOrderList;
     private List<WorkPerformedDTO> workPerformedList;
     private List<UserDTO> userList;
 }

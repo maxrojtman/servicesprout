@@ -1,6 +1,9 @@
 package com.Maxwell.ServiceSprout.service.impl;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,17 +11,23 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Maxwell.ServiceSprout.dto.LoginRequest;
 import com.Maxwell.ServiceSprout.dto.Response;
 import com.Maxwell.ServiceSprout.dto.UserDTO;
+import com.Maxwell.ServiceSprout.dto.WorkOrderDTO;
 import com.Maxwell.ServiceSprout.entity.User;
+import com.Maxwell.ServiceSprout.entity.WorkOrder;
 import com.Maxwell.ServiceSprout.exception.OurException;
 import com.Maxwell.ServiceSprout.repo.UserRepository;
+import com.Maxwell.ServiceSprout.repo.WorkOrderRepository;
 import com.Maxwell.ServiceSprout.service.interfac.IUserService;
 import com.Maxwell.ServiceSprout.utils.JWTUtils;
 import com.Maxwell.ServiceSprout.utils.Utils;
 
 @Service
 public class UserService implements IUserService {
+    @Autowired
+    private WorkOrderRepository workOrderRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -54,14 +63,14 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response login(User loginRequest) {
+    public Response login(LoginRequest loginRequest) {
 
         Response response = new Response();
+
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            var user = userRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> new OurException("User Not Found"));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            var user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new OurException("user Not found"));
+
             var token = jwtUtils.generateToken(user);
             response.setStatusCode(200);
             response.setToken(token);
@@ -80,6 +89,7 @@ public class UserService implements IUserService {
         }
         return response;
     }
+
     @Override
     public Response getAllUsers() {
 
@@ -97,5 +107,110 @@ public class UserService implements IUserService {
         }
         return response;
     }
+
+    @Override
+    public Response getUserWorkOrders(String userId) {
+            Response response = new Response();
+        try {
+            // Parse user ID from string to long
+            Long userIdLong = Long.parseLong(userId);
+            
+            // Find user by ID to verify existence
+            Optional<User> userOptional = userRepository.findById(userIdLong);
+            if (!userOptional.isPresent()) {
+                throw new OurException("User not found with ID: " + userId);
+            }
+            
+            // Get all work orders assigned to this user
+            List<WorkOrder> workOrders = workOrderRepository.findByAssignedUsersId(userIdLong);
+            
+            // Convert work orders to DTOs
+            Set<WorkOrderDTO> workOrderDTOs = workOrders.stream()
+                .map(Utils::mapWorkOrderEntityToDTO)
+                .collect(Collectors.toSet());
+            
+            // Build response
+            response.setStatusCode(200);
+            response.setMessage("Successfully retrieved work orders for user");
+            response.setWorkOrderList(workOrderDTOs.stream().collect(Collectors.toList()));
+            
+        } catch (NumberFormatException e) {
+            response.setStatusCode(400);
+            response.setMessage("Invalid user ID format: " + e.getMessage());
+        } catch (OurException e) {
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error retrieving work orders for user: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @Override
+    public Response deleteUser(String userId) {
+        Response response = new Response();
+        try {
+            userRepository.findById(Long.valueOf(userId))
+                    .orElseThrow(() -> new OurException("User Not Found"));
+            userRepository.deleteById(Long.valueOf(userId));
+            response.setStatusCode(200);
+            response.setMessage("successful");
+
+        } catch (OurException e) {
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error getting user work orders " + e.getMessage());
+        }
+        return response;
+    }
+
+    @Override
+    public Response getUserById(String userId) {
+        Response response = new Response();
+        try {
+            User user = userRepository.findById(Long.valueOf(userId))
+                    .orElseThrow(() -> new OurException("User Not Found"));
+            UserDTO userDTO = Utils.mapUserEntityToDTO(user);
+            response.setUser(userDTO);
+            response.setStatusCode(200);
+            response.setMessage("successful");
+
+        } catch (OurException e) {
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error getting user work orders " + e.getMessage());
+        }
+        return response;
+    }
+
+    @Override
+    public Response getMyInfo(String email) {
+        Response response = new Response();
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new OurException("User Not Found"));
+            UserDTO userDTO = Utils.mapUserEntityToDTO(user);
+            response.setUser(userDTO);
+            response.setStatusCode(200);
+            response.setMessage("successful");
+
+        } catch (OurException e) {
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error getting user work orders " + e.getMessage());
+        }
+        return response;
+        }
+
 
 }
